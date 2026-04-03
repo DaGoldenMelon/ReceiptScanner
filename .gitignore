@@ -1,0 +1,4 @@
+.env
+sheets/
+__pycache__/
+*.json
