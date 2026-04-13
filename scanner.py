@@ -1,4 +1,5 @@
 import os
+import mimetypes
 from google import genai
 from google.genai import types
 from PIL import Image
@@ -11,7 +12,16 @@ client = genai.Client(
     )
 
 def extract_receipt_data(image_path):
-    image = Image.open(image_path)
+    mime_type, _ = mimetypes.guess_type(image_path)
+    
+    with open(image_path, "rb") as f:
+        file_data = f.read()
+
+    media_content = types.Part.from_bytes(
+        data = file_data,
+        mime_type = mime_type
+    )
+
     categories = ["Warmmiete","Sancks + Wants", "Krankenkasse","Rundfunkbeitrag","Handytarif","Abos","Lebensmittel","Eating out","Haushalt","Drogerie","Semesterbeitrag","Studienmaterialien","Bürokratie","Hobbies / Gaming","Sozial & Events","Kleidung","Geschenke","Reisen","Tech & Hardware","Schulden","Notfälle / Others"]
 
     #Prompt
@@ -31,7 +41,7 @@ def extract_receipt_data(image_path):
     - Pfand
     """
 
-    response = client.models.generate_content(model = "models/gemini-3-flash-preview", contents=[prompt, image])
+    response = client.models.generate_content(model = "models/gemini-3-flash-preview", contents=[prompt, media_content])
 
     import ast
     lines = response.text.strip().split('\n')
