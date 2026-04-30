@@ -2,7 +2,7 @@ from scanner import extract_receipt_data
 from spreadsheet import findNextPosition, appendToNextPosition
 
 def run_app():
-    image_path = "Netto_Kassenbon_20260413-173132.pdf"
+    image_path = "Netto_Kassenbon_20260420-111307.pdf"
     lines = extract_receipt_data(image_path)
 
     for line in lines:

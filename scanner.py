@@ -48,4 +48,27 @@ def extract_receipt_data(image_path):
     print(lines)
     result = [ast.literal_eval(line) for line in lines]
     return result
-    
+
+def extract_text_data(text_list):
+
+    categories = ["Warmmiete","Sancks + Wants", "Krankenkasse","Rundfunkbeitrag","Handytarif","Abos","Lebensmittel","Eating out","Haushalt","Drogerie","Semesterbeitrag","Studienmaterialien","Bürokratie","Hobbies / Gaming","Sozial & Events","Kleidung","Geschenke","Reisen","Tech & Hardware","Schulden","Notfälle / Others"]
+
+    formatted_text = ""
+    for item in text_list:
+        formatted_text += f"Product: {item['name']}, Price: {item['price']}\n"
+
+    #Prompt
+    prompt = f"""
+    I have manually written the items from a receipt.
+    Categorize them into: {", ".join(categories)}.
+    Return exactly one line per category found in this format:
+    ["DD.MM.YY", "Total for category", "Items included", "Category Name"]
+
+    Items: 
+    {formatted_text}
+    """
+
+    response = client.models.generate_content(model = "models/gemini-3-flash-preview", contents=[prompt])
+    return response.text
+
+
