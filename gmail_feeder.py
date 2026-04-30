@@ -1,4 +1,5 @@
 import os
+import requests
 import io
 import base64
 from google.auth.transport.requests import Request
@@ -65,17 +66,27 @@ def download_pdf_attatchment(service, message_id):
             return file_path
     return None
 
-def main():
+def process_and_upload_receipts():
     service = get_gmail_service()
-
     messages = search_netto_receipts(service)
 
-    if not messages:
-        print("No receipts found.")
-    else:
-        print(f"Found {len(messages)} messages in 'NettoKassenbon'!")
+    for msg in messages:
+        file_path = download_pdf_attatchment(service, msg['id'])
 
-    file_path = download_pdf_attatchment(service, messages[0]['id'])
+        if file_path:
+            api_url = "https://marlongoenawan.pythonanywhere.com/scan"
+
+            with open(file_path, 'rb') as f:
+                files = {'file': f}
+                response = requests.post(api_url, files=files)
+
+            if response.status_code == 200:
+                print(f"Successfully uploaded {file_path}")
+                os.remove(file_path)
+                # mark_as_read(service, msg['id'])
+
+def main():
+    process_and_upload_receipts()
 
 if __name__ == '__main__':
     main()
