@@ -28,6 +28,9 @@ def extract_receipt_data(image_path):
     prompt = f"""
     Analyze this receipt. Look at every item. 
     Group items by these categories: {", ".join(categories)}.
+    For example: 
+    Items such as sugary drinks, chips will be categorised as snacks/wants,
+    whereas items such as chicken or potatoes will be categorised as lebensmittel
     
     For each category found, return exactly one line in this format:
     ["DD.MM.YY", "Total for this category", "Items included", "Category Name"]

@@ -28,6 +28,7 @@ def findNextPosition():
 
 def appendToNextPosition(item, expense_range):
     #Updating the current cell
+    print(date_transaction)
     sheet.update(range_name=expense_range, values=[item], value_input_option="USER_ENTERED")
 
 

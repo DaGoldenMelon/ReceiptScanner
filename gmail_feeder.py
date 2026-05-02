@@ -35,7 +35,7 @@ def get_gmail_service():
 
 def search_netto_receipts(service):
     # We search specifically for your label
-    query = 'label:NettoKassenbon newer_than:1d'
+    query = 'label:NettoKassenbon is:unread'
     
     results = service.users().messages().list(userId='me', q=query).execute()
     messages = results.get('messages', [])
@@ -66,15 +66,28 @@ def download_pdf_attatchment(service, message_id):
             return file_path
     return None
 
+def mark_as_read(service, message_id):
+    try: 
+        service.users().messages().modify(
+            userId='me',
+            id=message_id,
+            body={'removeLabelIds': ['UNREAD']}
+        ).execute()
+        print(f"Message {message_id} marked as read.")
+    except Exception as e:
+        print(f"Error making message as read: {e}")
+
 def process_and_upload_receipts():
+    print("Checking for emails...")
     service = get_gmail_service()
     messages = search_netto_receipts(service)
+    print(f"Found {len(messages)} messages.")
 
     for msg in messages:
         file_path = download_pdf_attatchment(service, msg['id'])
 
         if file_path:
-            api_url = "https://marlongoenawan.pythonanywhere.com/scan"
+            api_url = "https://DaGoldenMelon.eu.pythonanywhere.com/scan"
 
             with open(file_path, 'rb') as f:
                 files = {'file': f}
@@ -83,7 +96,7 @@ def process_and_upload_receipts():
             if response.status_code == 200:
                 print(f"Successfully uploaded {file_path}")
                 os.remove(file_path)
-                # mark_as_read(service, msg['id'])
+                mark_as_read(service, msg['id'])
 
 def main():
     process_and_upload_receipts()
